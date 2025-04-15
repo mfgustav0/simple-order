@@ -32,6 +32,14 @@ export class OrderRepository {
     return this.orderModel.find().exec();
   }
 
+  findAllByStatus(statusOrder: OrderStatus): Order[] | PromiseLike<Order[]> {
+    return this.orderModel
+      .find({
+        status: statusOrder,
+      })
+      .exec();
+  }
+
   findById(id: string): Promise<Order | null> {
     return this.orderModel
       .findOne({

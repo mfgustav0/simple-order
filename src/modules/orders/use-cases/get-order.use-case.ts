@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order.repository';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Injectable()
 export class GetOrder {
@@ -23,8 +24,13 @@ type Input = {
   orderId: string;
 };
 
-type Output = {
+export class Output {
+  @ApiProperty()
   orderId: string;
+
+  @ApiProperty()
   clientName: string;
+
+  @ApiProperty()
   status: string;
-};
+}
