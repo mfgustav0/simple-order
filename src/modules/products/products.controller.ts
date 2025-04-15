@@ -14,13 +14,18 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductResponse } from './dto/product-response.dto';
 import { Product } from './entities/product.entity';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
   @HttpCode(201)
+  @ApiCreatedResponse({
+    type: ProductResponse,
+  })
   async create(
     @Body() createProductDto: CreateProductDto,
   ): Promise<ProductResponse> {
@@ -30,6 +35,10 @@ export class ProductsController {
   }
 
   @Get()
+  @ApiOkResponse({
+    type: ProductResponse,
+    isArray: true,
+  })
   async findAll(): Promise<ProductResponse[]> {
     const products = await this.productsService.findAll();
 
@@ -39,6 +48,9 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @ApiOkResponse({
+    type: ProductResponse,
+  })
   async findOne(@Param('id') id: string): Promise<ProductResponse> {
     const product = await this.productsService.findOne(id);
     if (!product) {
