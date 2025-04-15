@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order.repository';
 import { OrderStatus } from '../enums/order.status';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Injectable()
 export class CreateOrder {
@@ -22,6 +23,7 @@ type Input = {
   clientName: string;
 };
 
-type Output = {
+export class Output {
+  @ApiProperty()
   orderId: string;
-};
+}
