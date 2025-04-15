@@ -11,10 +11,14 @@ export class ProductResponse {
   @ApiProperty()
   readonly price: number;
 
-  constructor(id: string, name: string, price: number) {
+  @ApiProperty()
+  readonly stock_quantity: number;
+
+  constructor(id: string, name: string, price: number, stock_quantity: number) {
     this.id = id;
     this.name = name;
     this.price = price;
+    this.stock_quantity = stock_quantity;
   }
 
   static fromEntity(product: Product) {
@@ -22,6 +26,7 @@ export class ProductResponse {
       product._id.toString(),
       product.name,
       product.price,
+      product.stock_quantity,
     );
   }
 }
