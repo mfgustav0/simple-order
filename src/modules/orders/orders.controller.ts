@@ -6,13 +6,26 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { GetOrder } from './use-cases/get-order.use-case';
-import { ListOrders } from './use-cases/list-orders.use-case';
-import { CreateOrder } from './use-cases/create-order.use-case';
+import {
+  GetOrder,
+  Output as OutputGetOrder,
+} from './use-cases/get-order.use-case';
+import {
+  ListOrders,
+  Output as OutputListOrders,
+} from './use-cases/list-orders.use-case';
+import {
+  CreateOrder,
+  Output as OutputCreateOrder,
+} from './use-cases/create-order.use-case';
 import { FinishOrder } from './use-cases/finish-order.use-case';
 import { CreateOrderDto } from './dtos/create-order.dto';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ListOrderDto } from './dtos/list-order.dto';
 
+@ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
   constructor(
@@ -23,18 +36,28 @@ export class OrdersController {
   ) {}
 
   @Get()
-  findAll() {
-    return this.listOrders.execute();
+  @ApiOkResponse({
+    type: OutputListOrders,
+    isArray: true,
+  })
+  findAll(@Query() listOrderDto: ListOrderDto): Promise<OutputListOrders[]> {
+    return this.listOrders.execute(listOrderDto);
   }
 
   @Post()
   @HttpCode(201)
-  create(@Body() createOrderDto: CreateOrderDto) {
+  @ApiCreatedResponse({
+    type: OutputCreateOrder,
+  })
+  create(@Body() createOrderDto: CreateOrderDto): Promise<OutputCreateOrder> {
     return this.createOrder.execute(createOrderDto);
   }
 
   @Get(':id')
-  findById(@Param('id') orderId: string) {
+  @ApiOkResponse({
+    type: OutputGetOrder,
+  })
+  findById(@Param('id') orderId: string): Promise<OutputGetOrder> {
     return this.getOrder.execute({ orderId });
   }
 
