@@ -31,7 +31,19 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    await this.productRepository.update(id, updateProductDto);
+    product.name = updateProductDto.name;
+    product.price = updateProductDto.price;
+
+    await this.productRepository.update(product);
+  }
+
+  async updateQuantity(id: string, quantity: number): Promise<void> {
+    const product = await this.productRepository.findOne(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    await this.productRepository.updateQuantity(product, quantity);
   }
 
   async remove(id: string): Promise<void> {

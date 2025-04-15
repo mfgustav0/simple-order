@@ -12,6 +12,9 @@ export class Product {
 
   @Prop({ type: Number, required: true })
   price: number;
+
+  @Prop({ type: Number, default: 0 })
+  stock_quantity: number;
 }
 
 export type ProductDocument = HydratedDocument<Product>;
