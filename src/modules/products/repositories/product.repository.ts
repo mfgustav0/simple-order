@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from '../entities/product.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductDto } from '../dto/update-product.dto';
 
 @Injectable()
 export class ProductRepository {
@@ -12,18 +11,38 @@ export class ProductRepository {
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
-    const createdProduct = new this.productModel(createProductDto);
+    const createdProduct = new this.productModel({
+      ...createProductDto,
+      stock_quantity: 0,
+    });
 
     return createdProduct.save();
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<void> {
-    const updatedProduct = await this.productModel.findByIdAndUpdate(id, {
-      $set: {
-        name: updateProductDto.name,
-        price: updateProductDto.price,
+  async update(product: Product): Promise<void> {
+    const updatedProduct = await this.productModel.findByIdAndUpdate(
+      product._id,
+      {
+        $set: {
+          name: product.name,
+          price: product.price,
+        },
       },
-    });
+    );
+    if (!updatedProduct) {
+      throw new Error('Error on update');
+    }
+  }
+
+  async updateQuantity(product: Product, quantity: number): Promise<void> {
+    const updatedProduct = await this.productModel.findByIdAndUpdate(
+      product._id,
+      {
+        $inc: {
+          stock_quantity: quantity,
+        },
+      },
+    );
     if (!updatedProduct) {
       throw new Error('Error on update');
     }
@@ -33,12 +52,12 @@ export class ProductRepository {
     return this.productModel.find().exec();
   }
 
-  findOne(id: string): Promise<Product | null> {
-    return this.productModel
-      .findOne({
-        _id: id,
-      })
-      .exec();
+  async findOne(id: string): Promise<Product | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+
+    return await this.productModel.findById(id).exec();
   }
 
   async delete(id: string): Promise<void> {
