@@ -11,6 +11,7 @@ import { CreateStock } from './use-cases/create-stock.use-cases';
 import { Stock, StockSchema } from './entities/stock.entity';
 import { RemoveStock } from './use-cases/remove-stock.use-cases';
 import { DeleteProduct } from './use-cases/delete-product.use-case';
+import { HasStock } from './use-cases/has-stock.use-case';
 
 @Module({
   imports: [
@@ -22,10 +23,11 @@ import { DeleteProduct } from './use-cases/delete-product.use-case';
     ProductRepository,
     ProductsService,
     StockRepository,
-    StocksService,
     CreateStock,
     RemoveStock,
+    HasStock,
     DeleteProduct,
+    StocksService,
   ],
   exports: [ProductsService, StocksService],
 })
