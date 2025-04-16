@@ -3,10 +3,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductRepository } from './repositories/product.repository';
+import { DeleteProduct } from './use-cases/delete-product.use-case';
 
 @Injectable()
 export class ProductsService {
-  constructor(readonly productRepository: ProductRepository) {}
+  constructor(
+    private readonly productRepository: ProductRepository,
+    private readonly deleteProduct: DeleteProduct,
+  ) {}
 
   create(createProductDto: CreateProductDto): Promise<Product> {
     return this.productRepository.create(createProductDto);
@@ -47,11 +51,8 @@ export class ProductsService {
   }
 
   async remove(id: string): Promise<void> {
-    const product = await this.productRepository.findOne(id);
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
-    await this.productRepository.delete(product._id.toString());
+    await this.deleteProduct.execute({
+      productId: id,
+    });
   }
 }
