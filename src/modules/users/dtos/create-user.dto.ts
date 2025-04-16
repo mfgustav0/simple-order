@@ -11,4 +11,3 @@ export class CreateUserDto {
     this.password = password;
   }
 }
-

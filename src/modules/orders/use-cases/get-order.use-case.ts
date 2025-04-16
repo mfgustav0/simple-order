@@ -1,36 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order.repository';
-import { ApiProperty } from '@nestjs/swagger';
+import { Order } from '../entities/order.entity';
 
 @Injectable()
 export class GetOrder {
-  constructor(readonly orderRepository: OrderRepository) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  async execute(input: Input): Promise<Output> {
+  async execute(input: Input): Promise<Order> {
     const order = await this.orderRepository.findById(input.orderId);
     if (!order) {
       throw new NotFoundException('Order not found');
     }
 
-    return {
-      orderId: order._id.toString(),
-      clientName: order.clientName,
-      status: order.status.toString(),
-    };
+    return order;
   }
 }
 
 type Input = {
   orderId: string;
 };
-
-export class Output {
-  @ApiProperty()
-  orderId: string;
-
-  @ApiProperty()
-  clientName: string;
-
-  @ApiProperty()
-  status: string;
-}

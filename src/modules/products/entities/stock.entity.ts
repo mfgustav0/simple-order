@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { StockType } from '../enums/stock-type.enum';
-import { Product } from './product.entity';
 
 @Schema({
   collection: 'stocks',
@@ -9,7 +8,7 @@ import { Product } from './product.entity';
 export class Stock {
   _id: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Product', required: true, index: true })
   productId: Types.ObjectId;
 
   @Prop({ type: Number, required: true })

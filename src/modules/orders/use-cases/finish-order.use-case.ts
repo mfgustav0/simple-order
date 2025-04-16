@@ -5,10 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderStatus } from '../enums/order.status';
+import { StockType } from 'src/modules/products/enums/stock-type.enum';
+import { OrderItem } from '../entities/order.entity';
+import { StocksService } from 'src/modules/products/stocks.service';
 
 @Injectable()
 export class FinishOrder {
-  constructor(readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    private readonly stocksService: StocksService,
+  ) {}
 
   async execute(input: Input): Promise<void> {
     const order = await this.orderRepository.findById(input.orderId);
@@ -20,10 +26,19 @@ export class FinishOrder {
       throw new NotAcceptableException('Order not allowed');
     }
 
-    await this.orderRepository.updateStatus(
-      order._id.toString(),
-      OrderStatus.Finished,
-    );
+    order.items.forEach(async (item: OrderItem) => {
+      await this.stocksService.create({
+        productId: item.productId,
+        type: StockType.Decrement,
+        date: new Date(),
+        quantity: item.quantity,
+      });
+    });
+
+    order.status = OrderStatus.Finished;
+    order.finishDate = new Date();
+
+    await this.orderRepository.update(order);
   }
 }
 
