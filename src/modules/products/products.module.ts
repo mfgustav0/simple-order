@@ -10,6 +10,7 @@ import { StocksService } from './stocks.service';
 import { CreateStock } from './use-cases/create-stock.use-cases';
 import { Stock, StockSchema } from './entities/stock.entity';
 import { RemoveStock } from './use-cases/remove-stock.use-cases';
+import { DeleteProduct } from './use-cases/delete-product.use-case';
 
 @Module({
   imports: [
@@ -24,6 +25,8 @@ import { RemoveStock } from './use-cases/remove-stock.use-cases';
     StocksService,
     CreateStock,
     RemoveStock,
+    DeleteProduct,
   ],
+  exports: [ProductsService, StocksService],
 })
 export class ProductsModule {}
