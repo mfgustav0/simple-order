@@ -1,20 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { CreateStock } from './use-cases/create-stock.use-cases';
 import { StockRepository } from './repositories/stock.repository';
 import { Stock } from './entities/stock.entity';
 import { RemoveStock } from './use-cases/remove-stock.use-cases';
+import { HasStock } from './use-cases/has-stock.use-case';
 
 @Injectable()
 export class StocksService {
   constructor(
     private readonly createStock: CreateStock,
+    private readonly hasStock: HasStock,
     private readonly removeStock: RemoveStock,
     private readonly stockRepository: StockRepository,
   ) {}
 
-  create(createStockDto: CreateStockDto): Promise<Stock> {
-    return this.createStock.execute(createStockDto);
+  async create(createStockDto: CreateStockDto): Promise<Stock> {
+    const hasStock = await this.hasStockForProduct({ productId: createStockDto.productId, quantity: createStockDto.quantity });
+    if(!hasStock) {
+      throw new NotAcceptableException(
+        `Product not has stock`,
+      );
+    }
+
+    return await this.createStock.execute(createStockDto);
   }
 
   findAll(): Promise<Stock[]> {
@@ -23,6 +32,16 @@ export class StocksService {
 
   findAllByProductId(productId: string): Promise<Stock[]> {
     return this.stockRepository.findAllByProductId(productId);
+  }
+
+  hasStockForProduct(data: {
+    productId: string;
+    quantity: number;
+  }): Promise<boolean> {
+    return this.hasStock.execute({
+      productId: data.productId,
+      quantity: data.quantity,
+    });
   }
 
   async findOne(id: string): Promise<Stock> {
