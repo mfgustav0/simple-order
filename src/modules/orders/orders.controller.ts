@@ -4,66 +4,60 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
 } from '@nestjs/common';
-import {
-  GetOrder,
-  Output as OutputGetOrder,
-} from './use-cases/get-order.use-case';
-import {
-  ListOrders,
-  Output as OutputListOrders,
-} from './use-cases/list-orders.use-case';
-import {
-  CreateOrder,
-  Output as OutputCreateOrder,
-} from './use-cases/create-order.use-case';
-import { FinishOrder } from './use-cases/finish-order.use-case';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ListOrderDto } from './dtos/list-order.dto';
+import { OrderResponse } from './dtos/order-response.dto';
+import { OrdersService } from './orders.service';
 
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    readonly listOrders: ListOrders,
-    readonly createOrder: CreateOrder,
-    readonly getOrder: GetOrder,
-    readonly finishOrder: FinishOrder,
-  ) {}
+  constructor(private readonly orderService: OrdersService) {}
 
   @Get()
   @ApiOkResponse({
-    type: OutputListOrders,
+    type: OrderResponse,
     isArray: true,
   })
-  findAll(@Query() listOrderDto: ListOrderDto): Promise<OutputListOrders[]> {
-    return this.listOrders.execute(listOrderDto);
+  async findAll(@Query() listOrderDto: ListOrderDto): Promise<OrderResponse[]> {
+    const orders = await this.orderService.findAll(listOrderDto);
+
+    return orders.map((order) => OrderResponse.fromEntity(order));
   }
 
   @Post()
   @HttpCode(201)
   @ApiCreatedResponse({
-    type: OutputCreateOrder,
+    type: OrderResponse,
   })
-  create(@Body() createOrderDto: CreateOrderDto): Promise<OutputCreateOrder> {
-    return this.createOrder.execute(createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto): Promise<OrderResponse> {
+    const order = await this.orderService.create(createOrderDto);
+
+    return OrderResponse.fromEntity(order);
   }
 
   @Get(':id')
   @ApiOkResponse({
-    type: OutputGetOrder,
+    type: OrderResponse,
   })
-  findById(@Param('id') orderId: string): Promise<OutputGetOrder> {
-    return this.getOrder.execute({ orderId });
+  async findById(@Param('id') orderId: string): Promise<OrderResponse> {
+    const order = await this.orderService.findById(orderId);
+
+    return OrderResponse.fromEntity(order);
   }
 
-  @Put(':id/finish')
-  @HttpCode(204)
-  async finish(@Param('id') orderId: string) {
-    await this.finishOrder.execute({ orderId });
+  @Patch(':id/finish')
+  @ApiOkResponse({
+    type: OrderResponse,
+  })
+  async finish(@Param('id') orderId: string): Promise<OrderResponse> {
+    const order = await this.orderService.finish(orderId);
+
+    return OrderResponse.fromEntity(order);
   }
 }
