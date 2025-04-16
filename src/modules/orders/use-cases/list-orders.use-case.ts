@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order.repository';
-import { ApiProperty } from '@nestjs/swagger';
 import { OrderStatus } from '../enums/order.status';
 import { Order } from '../entities/order.entity';
 
 @Injectable()
 export class ListOrders {
-  constructor(readonly orderRepository: OrderRepository) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  async execute(input: Input): Promise<Output[]> {
+  async execute(input: Input): Promise<Order[]> {
     let orders: Order[] = [];
     if (input.status) {
       orders = await this.orderRepository.findAllByStatus(input.status);
@@ -16,27 +15,10 @@ export class ListOrders {
       orders = await this.orderRepository.findAll();
     }
 
-    return orders.map((order) => {
-      return {
-        orderId: order._id.toString(),
-        clientName: order.clientName.toString(),
-        status: order.status.toString(),
-      };
-    });
+    return orders;
   }
 }
 
 type Input = {
   status: OrderStatus | null;
 };
-
-export class Output {
-  @ApiProperty()
-  orderId: string;
-
-  @ApiProperty()
-  clientName: string;
-
-  @ApiProperty()
-  status: string;
-}
