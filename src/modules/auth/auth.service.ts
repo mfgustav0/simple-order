@@ -3,10 +3,7 @@ import { LoginDto } from './dtos/login.dto';
 import { AuthTokenDto } from './dtos/auth-token.dto';
 import { Login } from './use-cases/login.use-case';
 import { RegisterUserDto } from './dtos/register-user.dto';
-import {
-  Output as OutputRegisterUser,
-  RegisterUser,
-} from './use-cases/register-user.use-case';
+import { RegisterUser } from './use-cases/register-user.use-case';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +18,14 @@ export class AuthService {
     return new AuthTokenDto(output.access_token);
   }
 
-  register(registerUserDto: RegisterUserDto): Promise<OutputRegisterUser> {
-    return this.registerUser.execute(registerUserDto);
+  async register(registerUserDto: RegisterUserDto): Promise<AuthTokenDto> {
+    const outputRegister = await this.registerUser.execute(registerUserDto);
+
+    const output = await this.login.execute({
+      email: outputRegister.email,
+      password: registerUserDto.password,
+    });
+
+    return new AuthTokenDto(output.access_token);
   }
 }
