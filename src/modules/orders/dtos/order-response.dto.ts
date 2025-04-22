@@ -53,9 +53,6 @@ export class OrderResponse {
   readonly id: string;
 
   @ApiProperty()
-  readonly clientName: string;
-
-  @ApiProperty()
   readonly status: string;
 
   @ApiProperty()
@@ -69,14 +66,12 @@ export class OrderResponse {
 
   constructor(
     id: string,
-    clientName: string,
     status: string,
     total: number,
     date: Date,
     items: OrderItemResponse[],
   ) {
     this.id = id;
-    this.clientName = clientName;
     this.status = status;
     this.total = total;
     this.date = date;
@@ -86,7 +81,6 @@ export class OrderResponse {
   static fromEntity(order: Order) {
     return new OrderResponse(
       order._id.toString(),
-      order.clientName,
       order.status.toString(),
       order.total,
       order.date,

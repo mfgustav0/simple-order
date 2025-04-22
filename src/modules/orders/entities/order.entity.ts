@@ -52,8 +52,8 @@ export class OrderItem {
 export class Order {
   _id: Types.ObjectId;
 
-  @Prop({ required: true })
-  clientName: string;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  userId: Types.ObjectId;
 
   @Prop({ type: String, enum: OrderStatus, required: true, index: true })
   status: OrderStatus;

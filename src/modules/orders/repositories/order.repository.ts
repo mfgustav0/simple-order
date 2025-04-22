@@ -8,9 +8,9 @@ import { OrderStatus } from '../enums/order.status';
 export class OrderRepository {
   constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
 
-  async create(data: { clientName: string; date: Date }): Promise<Order> {
+  async create(data: { userId: string; date: Date }): Promise<Order> {
     const createdOrder = new this.orderModel({
-      clientName: data.clientName,
+      userId: data.userId,
       date: data.date,
       status: OrderStatus.Pendent,
     });
@@ -18,19 +18,24 @@ export class OrderRepository {
     return createdOrder.save();
   }
 
-  findAll(): Promise<Order[]> {
-    return this.orderModel.find().exec();
-  }
-
-  findAllByStatus(statusOrder: OrderStatus): Promise<Order[]> {
+  findAllByUserId(userId: string): Promise<Order[]> {
     return this.orderModel
       .find({
+        userId: userId,
+      })
+      .exec();
+  }
+
+  findAllByStatus(userId: string, statusOrder: OrderStatus): Promise<Order[]> {
+    return this.orderModel
+      .find({
+        userId: userId,
         status: statusOrder,
       })
       .exec();
   }
 
-  async findById(id: string): Promise<Order | null> {
+  async findByIdFromUser(id: string, userId: string): Promise<Order | null> {
     if (!Types.ObjectId.isValid(id)) {
       return null;
     }
@@ -38,6 +43,20 @@ export class OrderRepository {
     return await this.orderModel
       .findOne({
         _id: id,
+        userId: userId,
+      })
+      .exec();
+  }
+
+  async findById(id: string, userId: string): Promise<Order | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+
+    return await this.orderModel
+      .findOne({
+        _id: id,
+        userId: userId,
       })
       .exec();
   }
@@ -55,8 +74,10 @@ export class OrderRepository {
   }
 
   async updateItems(order: Order): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const total = Object.keys(order.items).reduce(
       (previous: number, index: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
         return previous + order.items[index].total;
       },
       0,

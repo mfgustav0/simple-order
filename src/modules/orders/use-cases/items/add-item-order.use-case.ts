@@ -16,7 +16,10 @@ export class AddItemOrder {
   ) {}
 
   async execute(input: Input): Promise<OrderItem> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderRepository.findByIdFromUser(
+      input.orderId,
+      input.userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -44,6 +47,7 @@ export class AddItemOrder {
 
 type Input = {
   orderId: string;
+  userId: string;
   productId: string;
   quantity: number;
 };

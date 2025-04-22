@@ -10,9 +10,12 @@ export class ListOrders {
   async execute(input: Input): Promise<Order[]> {
     let orders: Order[] = [];
     if (input.status) {
-      orders = await this.orderRepository.findAllByStatus(input.status);
+      orders = await this.orderRepository.findAllByStatus(
+        input.userId,
+        input.status,
+      );
     } else {
-      orders = await this.orderRepository.findAll();
+      orders = await this.orderRepository.findAllByUserId(input.userId);
     }
 
     return orders;
@@ -20,5 +23,6 @@ export class ListOrders {
 }
 
 type Input = {
+  userId: string;
   status: OrderStatus | null;
 };

@@ -14,7 +14,10 @@ export class ValidateStockItemsOrder {
   ) {}
 
   async execute(input: Input): Promise<void> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderRepository.findByIdFromUser(
+      input.orderId,
+      input.userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -47,6 +50,7 @@ export class ValidateStockItemsOrder {
 
 type Input = {
   orderId: string;
+  userId: string;
 };
 
 type ItemsCheck = {

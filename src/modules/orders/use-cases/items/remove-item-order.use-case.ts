@@ -15,7 +15,10 @@ export class RemoveItemOrder {
   ) {}
 
   async execute(input: Input): Promise<void> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderRepository.findByIdFromUser(
+      input.orderId,
+      input.userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -39,5 +42,6 @@ export class RemoveItemOrder {
 
 type Input = {
   orderId: string;
+  userId: string;
   itemId: string;
 };

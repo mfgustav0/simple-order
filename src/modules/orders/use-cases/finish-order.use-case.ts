@@ -17,7 +17,10 @@ export class FinishOrder {
   ) {}
 
   async execute(input: Input): Promise<void> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderRepository.findByIdFromUser(
+      input.orderId,
+      input.userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -26,6 +29,7 @@ export class FinishOrder {
       throw new NotAcceptableException('Order not allowed');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     order.items.forEach(async (item: OrderItem) => {
       await this.stocksService.create({
         productId: item.productId,
@@ -44,4 +48,5 @@ export class FinishOrder {
 
 type Input = {
   orderId: string;
+  userId: string;
 };

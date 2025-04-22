@@ -53,7 +53,7 @@ type UserTokenResponse = {
   email: string;
 };
 
-type UserToken = {
+export type UserToken = {
   id: string;
   name: string;
   email: string;
