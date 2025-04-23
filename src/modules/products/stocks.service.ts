@@ -1,10 +1,15 @@
-import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { CreateStock } from './use-cases/create-stock.use-cases';
 import { StockRepository } from './repositories/stock.repository';
 import { Stock } from './entities/stock.entity';
 import { RemoveStock } from './use-cases/remove-stock.use-cases';
 import { HasStock } from './use-cases/has-stock.use-case';
+import { StockType } from './enums/stock-type.enum';
 
 @Injectable()
 export class StocksService {
@@ -16,11 +21,14 @@ export class StocksService {
   ) {}
 
   async create(createStockDto: CreateStockDto): Promise<Stock> {
-    const hasStock = await this.hasStockForProduct({ productId: createStockDto.productId, quantity: createStockDto.quantity });
-    if(!hasStock) {
-      throw new NotAcceptableException(
-        `Product not has stock`,
-      );
+    if (createStockDto.type === StockType.Decrement) {
+      const hasStock = await this.hasStockForProduct({
+        productId: createStockDto.productId,
+        quantity: createStockDto.quantity,
+      });
+      if (!hasStock) {
+        throw new NotAcceptableException(`Product not has stock`);
+      }
     }
 
     return await this.createStock.execute(createStockDto);

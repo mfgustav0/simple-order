@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { AuthTokenDto } from './dtos/auth-token.dto';
 import { RegisterUserDto } from './dtos/register-user.dto';
-import { UserResponse } from './dtos/user-response.dto';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('auth')
@@ -20,13 +19,13 @@ export class AuthController {
   }
 
   @ApiCreatedResponse({
-    type: UserResponse,
+    type: AuthTokenDto,
   })
   @HttpCode(201)
   @Post('/register')
   async register(
     @Body() registerUserDto: RegisterUserDto,
-  ): Promise<UserResponse> {
+  ): Promise<AuthTokenDto> {
     return await this.authService.register(registerUserDto);
   }
 }

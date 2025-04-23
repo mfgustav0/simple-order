@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ListOrders } from './use-cases/list-orders.use-case';
 import { CreateOrder } from './use-cases/create-order.use-case';
 import { GetOrder } from './use-cases/get-order.use-case';
@@ -18,31 +18,37 @@ export class OrdersService {
     private readonly finishOrder: FinishOrder,
   ) {}
 
-  create(createOrderDto: CreateOrderDto): Promise<Order> {
+  create(createOrderDto: CreateOrderDto & { userId: string }): Promise<Order> {
     return this.createOrder.execute(createOrderDto);
   }
 
-  async findAll(listOrderDto: ListOrderDto): Promise<Order[]> {
+  async findAll(
+    listOrderDto: ListOrderDto & { userId: string },
+  ): Promise<Order[]> {
     return this.listOrders.execute(listOrderDto);
   }
 
-  findById(id: string): Promise<Order> {
+  findById(id: string, userId: string): Promise<Order> {
     return this.getOrder.execute({
       orderId: id,
+      userId,
     });
   }
 
-  async finish(id: string): Promise<Order> {
+  async finish(id: string, userId: string): Promise<Order> {
     await this.validateStockItemsOrder.execute({
       orderId: id,
+      userId,
     });
 
     await this.finishOrder.execute({
       orderId: id,
+      userId,
     });
 
     return this.getOrder.execute({
       orderId: id,
+      userId,
     });
   }
 }

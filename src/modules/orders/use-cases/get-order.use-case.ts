@@ -7,7 +7,10 @@ export class GetOrder {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(input: Input): Promise<Order> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderRepository.findById(
+      input.orderId,
+      input.userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -18,4 +21,5 @@ export class GetOrder {
 
 type Input = {
   orderId: string;
+  userId: string;
 };

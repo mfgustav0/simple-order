@@ -31,6 +31,7 @@ export class AuthGuard implements CanActivate {
       request['user'] = {
         id: user.sub,
         name: user.name,
+        email: user.email,
       } as UserToken;
     } catch {
       throw new UnauthorizedException();
@@ -49,9 +50,11 @@ export class AuthGuard implements CanActivate {
 type UserTokenResponse = {
   sub: string;
   name: string;
+  email: string;
 };
 
-type UserToken = {
+export type UserToken = {
   id: string;
   name: string;
+  email: string;
 };

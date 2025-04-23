@@ -7,15 +7,20 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ListOrderDto } from './dtos/list-order.dto';
 import { OrderResponse } from './dtos/order-response.dto';
 import { OrdersService } from './orders.service';
+import { AuthGuard, UserToken } from '../auth/auth.guard';
+import { Request as RequestExpress } from 'express';
 
 @ApiTags('Orders')
 @Controller('orders')
+@UseGuards(AuthGuard)
 export class OrdersController {
   constructor(private readonly orderService: OrdersService) {}
 
@@ -24,8 +29,14 @@ export class OrdersController {
     type: OrderResponse,
     isArray: true,
   })
-  async findAll(@Query() listOrderDto: ListOrderDto): Promise<OrderResponse[]> {
-    const orders = await this.orderService.findAll(listOrderDto);
+  async findAll(
+    @Query() listOrderDto: ListOrderDto,
+    @Request() req: RequestExpress & { user: UserToken },
+  ): Promise<OrderResponse[]> {
+    const orders = await this.orderService.findAll({
+      ...listOrderDto,
+      userId: req.user.id,
+    });
 
     return orders.map((order) => OrderResponse.fromEntity(order));
   }
@@ -35,8 +46,14 @@ export class OrdersController {
   @ApiCreatedResponse({
     type: OrderResponse,
   })
-  async create(@Body() createOrderDto: CreateOrderDto): Promise<OrderResponse> {
-    const order = await this.orderService.create(createOrderDto);
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Request() req: RequestExpress & { user: UserToken },
+  ): Promise<OrderResponse> {
+    const order = await this.orderService.create({
+      ...createOrderDto,
+      userId: req.user.id,
+    });
 
     return OrderResponse.fromEntity(order);
   }
@@ -45,8 +62,11 @@ export class OrdersController {
   @ApiOkResponse({
     type: OrderResponse,
   })
-  async findById(@Param('id') orderId: string): Promise<OrderResponse> {
-    const order = await this.orderService.findById(orderId);
+  async findById(
+    @Param('id') orderId: string,
+    @Request() req: RequestExpress & { user: UserToken },
+  ): Promise<OrderResponse> {
+    const order = await this.orderService.findById(orderId, req.user.id);
 
     return OrderResponse.fromEntity(order);
   }
@@ -55,8 +75,11 @@ export class OrdersController {
   @ApiOkResponse({
     type: OrderResponse,
   })
-  async finish(@Param('id') orderId: string): Promise<OrderResponse> {
-    const order = await this.orderService.finish(orderId);
+  async finish(
+    @Param('id') orderId: string,
+    @Request() req: RequestExpress & { user: UserToken },
+  ): Promise<OrderResponse> {
+    const order = await this.orderService.finish(orderId, req.user.id);
 
     return OrderResponse.fromEntity(order);
   }
