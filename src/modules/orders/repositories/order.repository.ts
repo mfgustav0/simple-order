@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Order } from '../entities/order.entity';
+import { Order, OrderItem } from '../entities/order.entity';
 import { Injectable } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { OrderStatus } from '../enums/order.status';
@@ -22,6 +22,10 @@ export class OrderRepository {
     return this.orderModel
       .find({
         userId: userId,
+      })
+      .sort({
+        status: -1,
+        date: -1,
       })
       .exec();
   }
@@ -74,11 +78,11 @@ export class OrderRepository {
   }
 
   async updateItems(order: Order): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const total = Object.keys(order.items).reduce(
       (previous: number, index: string) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-        return previous + order.items[index].total;
+        const orderItem = order.items[index] as OrderItem;
+
+        return previous + orderItem.total;
       },
       0,
     );
